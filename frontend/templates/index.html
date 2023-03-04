@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="static/style.css" />
+    <title>Sound Cloud</title>
+    <script src="https://code.jquery.com/jquery-3.2.1.js"></script>
+  </head>
+  <body>
+    <section class="header">
+      <header>
+        <h1>Welcome to SoundCloud!</h1>
+        <p>
+          The ultimate online service for discovering new music and expanding
+          your musical horizons! With SoundCloud, you can easily explore a vast
+          library of audio files, categorize them, and find similar sounds that
+          match your tastes and preferences.
+        </p>
+      </header>
+    </section>
+    <div class="background">
+      <img
+        class="background-wave"
+        src="../static/src/background-wave.svg"
+        alt="Background"
+      />
+    </div>
+    <section class="upload">
+      <h2>Upload your sound</h2>
+      <form enctype="multipart/form-data" onsubmit="return false;">
+        <input id="file" type="file" accept="audio/*" name="static_file" />
+        <br />
+        <br />
+        <button id="upload-button" onclick="uploadFile(this.form)">
+          Upload
+        </button>
+      </form>
+      <div id="static_file_response"></div>
+    </section>
+    <script type="text/javascript" src="../static/app.js"></script>
+  </body>
+</html>
