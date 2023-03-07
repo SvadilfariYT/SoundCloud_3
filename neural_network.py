@@ -117,7 +117,7 @@ def predict(model, img_path, output_layer : str):
     
     return pred
 
-def cluster_data(test_ds, features, cluster_count):
+def cluster_data(features, cluster_count):
     # Convert the features to a NumPy array
     features = np.array(features)
 
