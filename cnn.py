@@ -1,7 +1,10 @@
 from neural_network import create_model_cnn
 from neural_network import predict
+from neural_network import cluster_data
+from neural_network import create_scatter_plot
 from spectrogram_creation import load_audio
 from spectrogram_creation import get_spectrogram
+import numpy as np
 
 import sys
 import os
@@ -17,8 +20,8 @@ def save_model_cnn(model, model_path):
     sys.stdout = sys.__stdout__
 
 def load_model_cnn(model_path):
-    # Load the model from disk
     print("Loading Model CNN...")
+    # Load the model from disk
     sys.stdout = open('NUL', 'w')
     model = joblib.load(model_path)
     sys.stdout = sys.__stdout__
@@ -76,7 +79,7 @@ def predict_all_in_directory(input_directory, output_directory, prefix:str, outp
         
         # Call the predict_by_wav function
         prediction = predict_by_wav(input_path, output_path, output_layer)
-        features[filename] = prediction
+        features[prefix + "_" + filename] = prediction
         
         count += 1
         if max_files is not None and count >= max_files:
@@ -87,8 +90,8 @@ def predict_all_in_directory(input_directory, output_directory, prefix:str, outp
 # MAIN METHOD
 if __name__ == '__main__':
 
-    createCNN = False
-    doPrediction = False
+    createCNN = True
+    doPrediction = True
     doClustering = True
     
     model_path = 'model.joblib'
@@ -104,6 +107,8 @@ if __name__ == '__main__':
         # Load Model
         model = load_model_cnn(model_path)
 
+    return
+
     # Step 2: Extract Features out of CNN for Clustering
     if (doPrediction):
         # Create Predictions and save them
@@ -115,9 +120,17 @@ if __name__ == '__main__':
     random_key = random.choice(list(features.keys()))
     print(features[random_key])
 
+    # Dictionary to List of values
+    features = list(features.values())
+    # Convert the features to a NumPy array
+    features = np.array(features)
+    # Reshape the array to have 2 dimensions
+    features = features.reshape(features.shape[0], -1)
+
     # Step 3: Cluster Data
     if (doClustering):
         # Cluster Data
+        cluster_data(features, 2)
         print("")
     else:
         # Load Model

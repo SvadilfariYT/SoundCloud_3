@@ -7,6 +7,7 @@ import tensorflow as tf
 import tensorflow_io as tfio
 import IPython.display as ipd
 from sklearn.cluster import KMeans
+import umap
 
 import joblib
 
@@ -118,9 +119,7 @@ def predict(model, img_path, output_layer : str):
     return pred
 
 def cluster_data(features, cluster_count):
-    # Convert the features to a NumPy array
-    features = np.array(features)
-
+    print("Clustering Data...")
     # Initialize the KMeans algorithm with the number of clusters you want to form
     kmeans = KMeans(n_clusters = cluster_count)
 
@@ -134,10 +133,18 @@ def cluster_data(features, cluster_count):
     #for i, assignment in enumerate(cluster_assignments):
     #    print("Feature {}: assigned to Cluster {}".format(i, assignment))
 
+    print("Done!")
     create_scatter_plot(features, cluster_assignments)
     
 
 def create_scatter_plot(features, cluster_assignments):
+
+    # create a UMAP model with 2 output dimensions
+    umap_model = umap.UMAP(n_components=3)
+
+    # fit the model to your feature vectors
+    features = umap_model.fit_transform(features)
+
     from mpl_toolkits.mplot3d import Axes3D
     import matplotlib.pyplot as plt
 
@@ -173,7 +180,7 @@ def create_model_cnn():
     print("Done!")
 
     print("Training Model...")
-    train_model(model = model, epochs = 5, train_ds = train_ds)
+    train_model(model = model, epochs = 20, train_ds = train_ds)
     print("Done!")
 
     print("Testing Model...")
