@@ -6,7 +6,9 @@ import sys
 import tensorflow as tf
 import tensorflow_io as tfio
 import IPython.display as ipd
-from sklearn.cluster import KMeans
+from sklearn.cluster import KMeans, AgglomerativeClustering, DBSCAN
+import umap
+import matplotlib.pyplot as plt
 
 import joblib
 
@@ -48,6 +50,7 @@ def create_model(learning_rate : float, num_classes : int, pictureSize):
     tf.keras.layers.MaxPooling2D(),
     tf.keras.layers.Flatten(),
     tf.keras.layers.Dense(128, activation='relu'),
+    tf.keras.layers.Dense(32, activation='relu', name='cluster_layer'),
     tf.keras.layers.Dense(num_classes)
     ])
 
@@ -71,6 +74,8 @@ def test_model(model, test_ds, detailed_print):
     batch_size = 0
 
     for batch_num, (X, Y) in enumerate(test_ds):
+        # X = Input Data
+        # Y = Label
         batch_size = len(Y)
         pred = model.predict(X)
         
@@ -106,12 +111,11 @@ def predict(model, img_path):
     pred = model.predict(img_tensor[None,:,:])
     return pred
 
-def cluster_data(test_ds, features):
-    # Convert the features to a NumPy array
-    features = np.array(features)
+def cluster_data_kmeans(features, train_ds): 
+    number_classes = len(train_ds.class_names)
 
     # Initialize the KMeans algorithm with the number of clusters you want to form
-    kmeans = KMeans(n_clusters=3)
+    kmeans = KMeans(n_clusters = number_classes)
 
     # Fit the KMeans algorithm to the features
     kmeans.fit(features)
@@ -123,12 +127,58 @@ def cluster_data(test_ds, features):
     #for i, assignment in enumerate(cluster_assignments):
     #    print("Feature {}: assigned to Cluster {}".format(i, assignment))
 
-    create_scatter_plot(features, cluster_assignments)
+    #create_scatter_plot_2d(features, cluster_assignments, True)
+
+    return kmeans
+
+def cluster_data_agglomerative(features, train_ds):    
+    number_classes = len(train_ds.class_names)
+
+    # Initialize the Agglomerative Clustering algorithm with the number of clusters you want to form
+    agglomerative = AgglomerativeClustering(n_clusters=number_classes)
+
+    # Fit the Agglomerative Clustering algorithm to the features
+    agglomerative.fit(features)
+
+    # Predict the cluster assignments for each feature
+    cluster_assignments = agglomerative.labels_
+
+    # Print the cluster assignments for each feature
+    # for i, assignment in enumerate(cluster_assignments):
+    #     print("Feature {}: assigned to Cluster {}".format(i, assignment))
+
+    # create_scatter_plot_2d(features, cluster_assignments, True)
+
+    return agglomerative
+
+
+
+def cluster_data_dbscan(features, train_ds, eps=0.5, min_samples=100):   
+    # Initialize the DBSCAN algorithm with the desired parameters
+    dbscan = DBSCAN(eps=eps, min_samples=min_samples)
+    
+    # Fit the DBSCAN algorithm to the features
+    dbscan.fit(features)
+    
+    # Predict the cluster assignments for each feature
+    cluster_assignments = dbscan.labels_
+    
+    # Print the cluster assignments for each feature
+    # for i, assignment in enumerate(cluster_assignments):
+    #     print("Feature {}: assigned to Cluster {}".format(i, assignment))
+    
+    create_scatter_plot_2d(features, cluster_assignments, True)
+
+    return dbscan
     
 
-def create_scatter_plot(features, cluster_assignments):
-    from mpl_toolkits.mplot3d import Axes3D
-    import matplotlib.pyplot as plt
+def create_scatter_plot_3d(features, cluster_assignments, use_dimension_reduction):
+    if (use_dimension_reduction):
+        # create a UMAP model with 2 output dimensions
+        umap_model = umap.UMAP(n_components=3)
+
+        # fit the model to your feature vectors
+        features = umap_model.fit_transform(features)
 
     # Create a 3D scatter plot
     fig = plt.figure()
@@ -152,22 +202,143 @@ def create_scatter_plot(features, cluster_assignments):
     # Save the plot as an image file
     plt.savefig('3d_scatter_plot.png')
 
-def create_model_cnn():
+def create_scatter_plot_2d(features, cluster_assignments, use_dimension_reduction):
+    if (use_dimension_reduction):
+        # create a UMAP model with 2 output dimensions
+        umap_model = umap.UMAP(n_components=2)
+
+        # fit the model to your feature vectors
+        features = umap_model.fit_transform(features)
+
+    # Create a 2D scatter plot
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+
+    for i, assignment in enumerate(cluster_assignments):
+        if assignment == 0:
+            color = 'red'
+        elif assignment == 1:
+            color = 'blue'
+        else:
+            color = 'green'
+
+        x = features[i, 0]
+        y = features[i, 1]
+        ax.scatter(x, y, c=color)
+
+    # Show the plot
+    plt.show()
+    # Save the plot as an image file
+    plt.savefig('2d_scatter_plot.png')
+
+def test_clustering_accuracy_kmeans(kmeans, cnn_shortened, test_ds):
+    accuracies = []
+    for batch_num, (X, Y) in enumerate(test_ds):
+        # X = Input Data
+        # Y = Label
+        batch_size = len(Y)
+        features = cnn_shortened.predict(X)
+        predicted_labels = kmeans.predict(features)
+        accuracy = test_clustering_accuracy(Y, predicted_labels)
+        accuracies.append(accuracy)
+
+    print(f'Accuracy Keans: {(sum(accuracies) / len(accuracies))*100}%')
+
+def test_clustering_accuracy_agglomerative(agglomerative, cnn_shortened, test_ds):
+    accuracies = []
+    for batch_num, (X, Y) in enumerate(test_ds):
+        # X = Input Data
+        # Y = Label
+        batch_size = len(Y)
+        features = cnn_shortened.predict(X)
+        predicted_labels = agglomerative.fit_predict(features)
+        accuracy = test_clustering_accuracy(Y, predicted_labels)
+        accuracies.append(accuracy)
+
+    print(f'Accuracy Agglomerative: {(sum(accuracies) / len(accuracies))*100}%')
+
+def test_clustering_accuracy_dbscan(dbscan, cnn_shortened, test_ds):
+    accuracies = []
+    for batch_num, (X, Y) in enumerate(test_ds):
+        # X = Input Data
+        # Y = Label
+        batch_size = len(Y)
+        features = cnn_shortened.predict(X)
+        predicted_labels = dbscan.fit_predict(features)
+        accuracy = test_clustering_accuracy(Y, predicted_labels)
+        accuracies.append(accuracy)
+
+    print(f'Accuracy DBSCAN: {(sum(accuracies) / len(accuracies))*100}%')
+
+
+def test_clustering_accuracy(test_labels, predicted_labels):    
+    from sklearn.metrics import precision_score, recall_score, f1_score
+
+    #test_data = test_data.map(lambda x, y: x)
+    # Predict cluster assignments for the test dataset
+    #predicted_labels = model.predict(test_data)
+    
+    # Calculate external evaluation metrics for each label
+    precision = precision_score(test_labels, predicted_labels, average=None)
+    recall = recall_score(test_labels, predicted_labels, average=None)
+    f1 = f1_score(test_labels, predicted_labels, average=None)
+    
+    # Calculate the average F1-score across all labels
+    accuracy = f1.mean()
+    
+    print(f'Accuracy {(accuracy)*100}%')
+    return accuracy
+
+def create_model_cnn(epochs = 10, learning_rate = 0.025, cnn = None):
     print("Loading Data...")
     train_ds, test_ds = load_data()
     print("Done!")
 
-    print("Creating Model...")
-    model = create_model(learning_rate = 0.025, num_classes=len(train_ds.class_names), pictureSize=(256,256))
+    if (cnn is None):
+        print("Creating Model...")
+        cnn = create_model(learning_rate = learning_rate, num_classes=len(train_ds.class_names), pictureSize=(256,256))
+        print("Done!")
+
+        print("Training Model...")
+        train_model(cnn = cnn, epochs = epochs, train_ds = train_ds)
+        print("Done!")
+
+        print("Testing Model...")
+        test_model(cnn, test_ds, False)
+        print("Done!")
+
+    print("Testing Clustering Kmeans...")
+    
+    cnn_shortened = tf.keras.models.Model(
+        inputs=cnn.input,
+        outputs=cnn.get_layer("cluster_layer").output
+    )
+
+    # Get the Predictoin out of the shortened CNN
+    features = cnn_shortened.predict(train_ds)
+
+    print("Clustering Data Kmeans...")    
+    kmeans = cluster_data_kmeans(features, train_ds)
     print("Done!")
 
-    print("Training Model...")
-    train_model(model = model, epochs = 20, train_ds = train_ds)
+    print("Testing Clustering KMeans...")
+    #test_clustering_accuracy_kmeans(kmeans, cnn_shortened, test_ds)
     print("Done!")
 
-    print("Testing Model...")
-    test_model(model, test_ds, False)
+    print("Clustering Data Agglomerative...")    
+    agglomerative = cluster_data_agglomerative(features, train_ds)
+    print("Done!")
+    
+    print("Testing Clustering Agglomerative...")
+    #test_clustering_accuracy_agglomerative(agglomerative, cnn_shortened, test_ds)
+    print("Done!")
+    
+    print("Clustering Data DBSCAN...")    
+    dbscan = cluster_data_dbscan(features, train_ds)
     print("Done!")
 
-    return model
+    print("Testing Clustering DBSCAN...")
+    test_clustering_accuracy_dbscan(dbscan, cnn_shortened, test_ds)
+    print("Done!")
 
+    return cnn

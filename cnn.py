@@ -7,8 +7,6 @@ import sys
 import joblib
 import matplotlib.pyplot as plt
 
-create = False
-
 def save_model_cnn(model, model_path):
     # Save the model to disk
     sys.stdout = open('NUL', 'w')
@@ -37,18 +35,20 @@ def predict_by_wav(audio_path : str):
 # MAIN METHOD
 if __name__ == '__main__':
     
+    create = False
+
     model_path = 'model.joblib'
 
     if (create):
         # Create Model and save it
-        model = create_model_cnn()
+        model = create_model_cnn(epochs=20)
         save_model_cnn(model, model_path)
     else:
         # Load Model
         model = load_model_cnn(model_path)
+        create_model_cnn(cnn=model)
 
-
-    predict_by_wav('./data/no/0a2b400e_nohash_0.wav')
+    #predict_by_wav('./data/no/0a2b400e_nohash_0.wav')
 
 
 
