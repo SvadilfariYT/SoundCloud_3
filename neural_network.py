@@ -7,6 +7,7 @@ import tensorflow as tf
 import tensorflow_io as tfio
 import IPython.display as ipd
 from sklearn.cluster import KMeans
+import umap
 
 import joblib
 
@@ -35,7 +36,7 @@ def load_data():
     return train_ds, test_ds
 
 # CREATE MODEL
-def create_model(learning_rate : float, num_classes : int, pictureSize):
+def create_model(learning_rate : float, final_layer_count : float, pictureSize):
     img_height, img_width = pictureSize
 
     model = tf.keras.Sequential([
@@ -47,8 +48,8 @@ def create_model(learning_rate : float, num_classes : int, pictureSize):
     tf.keras.layers.Conv2D(64, 3, padding='same', activation='relu'),
     tf.keras.layers.MaxPooling2D(),
     tf.keras.layers.Flatten(),
-    tf.keras.layers.Dense(128, activation='relu'),
-    tf.keras.layers.Dense(num_classes)
+    tf.keras.layers.Dense(128, activation='relu', name="dense_layer"),
+    tf.keras.layers.Dense(final_layer_count)
     ])
 
     loss_fn = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
@@ -96,22 +97,31 @@ def test_model(model, test_ds, detailed_print):
 
     return pred
 
-def predict(model, img_path):
+def predict(model, img_path, output_layer : str):
     pil_img = tf.keras.preprocessing.image.load_img(
     img_path, grayscale=False, color_mode='rgb', target_size=[256,256],
     interpolation='nearest'
     )
 
     img_tensor = np.array(pil_img)
-    pred = model.predict(img_tensor[None,:,:])
+
+    # Create a new model that outputs the specified layer's output
+    if (output_layer == None):
+        pred = model.predict(img_tensor[None,:,:])
+    else:
+        new_model = tf.keras.models.Model(
+            inputs=model.input,
+            outputs=model.get_layer(output_layer).output
+        )
+        pred = new_model.predict(img_tensor[None,:,:])
+
+    
     return pred
 
-def cluster_data(test_ds, features):
-    # Convert the features to a NumPy array
-    features = np.array(features)
-
+def cluster_data(features, cluster_count):
+    print("Clustering Data...")
     # Initialize the KMeans algorithm with the number of clusters you want to form
-    kmeans = KMeans(n_clusters=3)
+    kmeans = KMeans(n_clusters = cluster_count)
 
     # Fit the KMeans algorithm to the features
     kmeans.fit(features)
@@ -123,10 +133,18 @@ def cluster_data(test_ds, features):
     #for i, assignment in enumerate(cluster_assignments):
     #    print("Feature {}: assigned to Cluster {}".format(i, assignment))
 
+    print("Done!")
     create_scatter_plot(features, cluster_assignments)
     
 
 def create_scatter_plot(features, cluster_assignments):
+
+    # create a UMAP model with 2 output dimensions
+    umap_model = umap.UMAP(n_components=3)
+
+    # fit the model to your feature vectors
+    features = umap_model.fit_transform(features)
+
     from mpl_toolkits.mplot3d import Axes3D
     import matplotlib.pyplot as plt
 
@@ -158,7 +176,7 @@ def create_model_cnn():
     print("Done!")
 
     print("Creating Model...")
-    model = create_model(learning_rate = 0.025, num_classes=len(train_ds.class_names), pictureSize=(256,256))
+    model = create_model(learning_rate = 0.025, final_layer_count=3, pictureSize=(256,256))
     print("Done!")
 
     print("Training Model...")
