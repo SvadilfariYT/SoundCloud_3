@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="static/style.css" />
+    <link rel="stylesheet" href="static/waveform-style.css" />
+    <title>Sound Cloud</title>
+    <script src="https://code.jquery.com/jquery-3.2.1.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css"
+      integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+  </head>
+  <body>
+    <section class="header">
+      <header>
+        <h1>Welcome to SoundCloud!</h1>
+        <p id="introduction">
+          The ultimate online service for discovering new music and expanding
+          your musical horizons! With SoundCloud, you can easily explore a vast
+          library of audio files, categorize them, and find similar sounds that
+          match your tastes and preferences.
+        </p>
+      </header>
+    </section>
+    <div class="background">
+      <img
+        class="background-wave"
+        src="../static/src/background-wave.svg"
+        alt="Background"
+      />
+    </div>
+    <section class="upload">
+      <div id="upload" >
+        <h2>Upload your sound</h2>
+        <form class="form-upload-audio" enctype="multipart/form-data" onsubmit="return false;">
+          <input id="file" type="file" accept="audio/*" name="static_file" />
+          <br />
+          <br />
+          <button id="upload-button" onclick="uploadFile(this.form)">
+            Upload
+          </button>
+        </form>
+        <div id="static_file_response"></div>
+      </div>
+
+      <div class="analyze">
+        <h2>Analyze your sound</h2>
+        <div class="audio-container">
+          <div class="track-name">The name of the Track</div>
+          <div class="audio"></div>
+          <div class="buttons">
+            <span class="play-btn btn">
+              <i class="fas fa-play"></i>
+              <i class="fas fa-pause"></i>
+            </span>
+            
+            <span class="stop-btn btn">
+              <i class="fas fa-stop"></i>
+            </span>
+            
+            <span class="mute-btn btn">
+              <i class="fas fa-volume-up"></i>
+              <i class="fas fa-volume-mute"></i>
+            </span>
+            
+            <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.1"
+            value="0.5"
+            class="volume-slider"
+            />
+          </div>
+        </div>
+        <h3 style="margin: 40px 0px 20px 0px;">Your spectrogram</h3>
+        <img style="margin-top:0px;" id="spectogram" src='../static/spectrograms/spect.jpg' oncontextmenu='return false;'></img>
+        <p>A spectrogram is a visual representation of the frequencies that make up a sound wave over time. It typically display the frequency spectrum of a sound signal as a two-dimensional image, with time on the x-axis, frequency on the y-axis, and the intensity or power of each frequency component indicated by color or brightness.</p>
+      
+      </div>
+    </section>
+
+    <section class="analyze">
+      <div class="flex">
+
+        <div class="informations">
+          
+          <div class="background-tile scatterplot ">
+            <h3>Scatterplot</h3>
+            <img src="../static/src/scatterplot_example.png" alt="">
+          </div>
+          
+          <div class="background-tile classification-container">
+            <h3>Classification</h3>
+            <div class="classification selected">
+              <span class="class car">Car</span>
+            <span class="points">67.26%</span>
+          </div>
+          <div class="classification">
+            <span class="class train">Train</span>
+            <span class="points">20.03%</span>
+          </div>
+          <div class="classification">
+            <span class="class skateboard">Skateboard</span>
+            <span class="points">12.71%</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="similar-sounds">
+        <h2>Similar Sounds:</h2>
+        
+        <h4>Skateboard_001.wav</h4>
+        <audio controls>
+          <source src="../static/uploadedData/Skateboard_001.WAV">
+        </audio>
+        
+        <h4>Bus_005.wav</h4>
+        <audio controls>
+          <source src="../static/uploadedData/Bus_005.WAV">
+        </audio>
+        
+        <h4>Bus_004.wav</h4>
+        <audio controls>
+          <source src="../static/uploadedData/Bus_004.WAV">
+        </audio>
+      </div>
+    </div>
+      
+    </section>
+    <script src="https://unpkg.com/wavesurfer.js"></script>
+    <script type="text/javascript" src="../static/app.js"></script>
+    <script type="text/javascript" src="../static/wave.js"></script>
+  </body>
+</html>

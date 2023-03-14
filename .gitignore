@@ -1,3 +1,6 @@
 /data
 
-/frontend/uploadedData
+/static/uploadedData/*
+!/static/uploadedData/Skateboard_001.WAV
+!/static/uploadedData/Bus_005.WAV
+!/static/uploadedData/Bus_004.WAV
