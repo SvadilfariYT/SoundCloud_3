@@ -16,6 +16,11 @@
   --h2-size: 24px;
 }
 
+@font-face {
+  font-family: 'Avenir Next';
+  src: url('../static/src/Avenir\ Next.ttc') format('ttc')
+} 
+
 body {
   background-color: #1d1e22;
   color: #ffffff;

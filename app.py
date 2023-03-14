@@ -51,20 +51,6 @@ def upload_static_fileo():
     return jsonify(resp), 200
 
 
-# def generate_spectrogram(audioFilePath, spectrogramFilePath):
-#     # Erstelle das Spektrogramm
-#     y, sr = librosa.load(audioFilePath)
-#     spec = librosa.feature.melspectrogram(y=y, sr=sr)
-#     spec_db = librosa.power_to_db(spec, ref=np.max)
-#     plt.figure(figsize=(10, 5))
-#     librosa.display.specshow(spec_db, x_axis='time', y_axis='mel', sr=sr, fmax=8000)
-#     plt.colorbar(format='%+2.0f dB')
-#     plt.tight_layout()
-    
-#     # Speichern Sie das Spektrogramm als PNG-Datei
-#     plt.savefig(spectrogramFilePath)
-
-
 if __name__ == "__main__":
     app.run(host='0.0.0.0', debug=True, port=8000)
 
