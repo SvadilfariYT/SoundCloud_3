@@ -2,6 +2,8 @@ from neural_network import create_model_cnn
 from neural_network import predict
 from spectrogram_creation import load_audio
 from spectrogram_creation import get_spectrogram
+from spectrogram_creation import create_trainData_csv
+from spectrogram_creation import convert_all_files_in_directory_to_16bit
 
 import sys
 import joblib
@@ -35,15 +37,18 @@ def predict_by_wav(audio_path : str):
 # MAIN METHOD
 if __name__ == '__main__':
     
-    create = False
+    create_spectrogramm = True
+    create_model = False
 
     model_path = 'model.joblib'
 
-    if (create):
+    if (create_spectrogramm):
+        create_trainData_csv("./data/AudioDataScience_Data_Assignment.csv")
+    if (create_model):
         # Create Model and save it
         model = create_model_cnn(epochs=20)
-        save_model_cnn(model, model_path)
-    else:
+        save_model_cnn(model, model_path) 
+   # else:  #(DEACTIVATED)
         # Load Model
         model = load_model_cnn(model_path)
         create_model_cnn(cnn=model)
