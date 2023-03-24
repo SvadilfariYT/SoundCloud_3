@@ -300,11 +300,11 @@ def create_model_cnn(epochs = 10, learning_rate = 0.025, cnn = None):
         print("Done!")
 
         print("Training Model...")
-        train_model(cnn = cnn, epochs = epochs, train_ds = train_ds)
+        train_model(model = cnn, epochs = epochs, train_ds = train_ds)
         print("Done!")
 
         print("Testing Model...")
-        test_model(cnn, test_ds, False)
+        test_model(model = cnn, test_ds = test_ds, detailed_print = True)
         print("Done!")
 
     print("Testing Clustering Kmeans...")

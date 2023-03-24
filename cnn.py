@@ -37,8 +37,8 @@ def predict_by_wav(audio_path : str):
 # MAIN METHOD
 if __name__ == '__main__':
     
-    create_spectrogramm = True
-    create_model = False
+    create_spectrogramm = False
+    create_model = True
 
     model_path = 'model.joblib'
 
@@ -53,7 +53,7 @@ if __name__ == '__main__':
         model = load_model_cnn(model_path)
         create_model_cnn(cnn=model)
 
-    #predict_by_wav('./data/no/0a2b400e_nohash_0.wav')
+    predict_by_wav('./data/no/0a2b400e_nohash_0.wav')
 
 
 

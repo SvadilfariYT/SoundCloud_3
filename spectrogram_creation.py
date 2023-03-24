@@ -63,27 +63,35 @@ def load_audio_files_by_type(file_paths, label):
 
 def load_audio_files_by_csv(csv_file_path):
     # Load the CSV file into a pandas DataFrame while skipping blank lines
-    df = pd.read_csv(csv_file_path, skip_blank_lines=True, encoding='latin-1', sep=";")
+    df = pd.read_csv(csv_file_path, skip_blank_lines=True, encoding='latin-1', sep=",")
     print(df.columns)
 
     # Create an empty dictionary to hold the filenames for each type
     file_dict = {}
+    not_found_counter = 0
+    no_type_counter = 0
 
     # Iterate over each row in the DataFrame
     for index, row in df.iterrows():
         # Get the filename and type for the current row
-        input_filepath = "./data/AudioSamples/" + str(row['Filename']) + ".WAV"
+        input_filepath = "./data/AudioSamples_16bit/" + str(row['filename']) + ".WAV"
         output_filepath = "./data/AudioSamples/Processed"
-        file_type = row['Type']
+        file_type = row['type']
 
-        # Check if the type already exists in the dictionary
+        # Skip if no Filename is given
+        if pd.isna(row['filename']):
+            continue
+        
+        # Skip if no Type is specified
         if pd.isna(file_type):
             print(f"No type specified for file {input_filepath}")
+            no_type_counter += 1
             continue
 
         # Check if the file exists
         if not os.path.exists(input_filepath):
             print("File " + input_filepath + " does not exist!")
+            not_found_counter += 1
             continue
 
         # Call the slice_audio function to process the input file
@@ -91,12 +99,19 @@ def load_audio_files_by_csv(csv_file_path):
         overlap = 1500 #1500 (1,5s) overlap
         saved_files = slice_audio(input_filepath, output_filepath, clip_length, overlap)
 
+        # Check if the type already exists in the dictionary
         if file_type in file_dict:
             # If the type exists, add the saved file paths to the list of filenames for that type
             file_dict[file_type].extend(saved_files)
         else:
             # If the type does not exist, create a new key-value pair with the type and the list of saved file paths
             file_dict[file_type] = saved_files
+
+    # Print more Info about the loading process
+    if (not_found_counter > 0):
+        print(f"WARNING: {not_found_counter} in the CSV-file specified files have not been loaded (not found)")
+    if (no_type_counter > 0):
+        print(f"WARNING: {no_type_counter} in the CSV-file specified files are missing the 'type'-parameter")
 
     # Return the resulting dictionary
     return file_dict
@@ -197,20 +212,20 @@ def create_trainData_csv(csv_file_path):
     data = load_audio_files_by_csv(csv_file_path)
 
     trainset_bus = load_audio_files_by_type(data["Bus"], "Bus")
-    #trainset_trains_overground = load_audio_files_by_type(data["Train (Overground)"], "Train (Overground)")
-    #trainset_skateboard = load_audio_files_by_type(data["Skateboard"], "Skateboard")
-    #trainset_car = load_audio_files_by_type(data["Car"], "Car")
+    trainset_trains_overground = load_audio_files_by_type(data["Train (Overground)"], "Train (Overground)")
+    trainset_skateboard = load_audio_files_by_type(data["Skateboard"], "Skateboard")
+    trainset_car = load_audio_files_by_type(data["Car"], "Car")
 
     print(f'Length of BUS dataset: {len(trainset_bus)}')
-    #print(f'Length of TRAIN(OVERGROUND) dataset: {len(trainset_trains_overground)}')
-    #print(f'Length of SKATEBOARD dataset: {len(trainset_skateboard)}')
-    #print(f'Length of CAR dataset: {len(trainset_car)}')
+    print(f'Length of TRAIN(OVERGROUND) dataset: {len(trainset_trains_overground)}')
+    print(f'Length of SKATEBOARD dataset: {len(trainset_skateboard)}')
+    print(f'Length of CAR dataset: {len(trainset_car)}')
 
-    # train_percentage = 30%
-    create_images(trainset_bus, 'bus', 30)
-    #create_images(trainset_trains_overground, 'train_overground', 30)
-    #create_images(trainset_skateboard, 'skateboard', 30)
-    #create_images(trainset_car, 'car', 30)
+    train_percentage = 30 #(%) - Percentage used to create a 
+    create_images(trainset_bus, 'bus', train_percentage)
+    create_images(trainset_trains_overground, 'train_overground', train_percentage)
+    create_images(trainset_skateboard, 'skateboard', train_percentage)
+    create_images(trainset_car, 'car', train_percentage)
 
 def convert_all_files_in_directory_to_16bit(directory):
     for file in os.listdir(directory):
