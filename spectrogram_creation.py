@@ -77,23 +77,26 @@ def load_audio_files_by_csv(csv_file_path):
         file_type = row['Type']
 
         # Check if the type already exists in the dictionary
-        if not pd.isna(file_type):
-            # Check if the file exists
-            if not os.path.exists(input_filepath):
-                print("File " + input_filepath + " does not exist!")
-                continue
+        if pd.isna(file_type):
+            print(f"No type specified for file {input_filepath}")
+            continue
 
-            # Call the slice_audio function to process the input file
-            clip_length = 3000 #3000ms (3s) long clips
-            overlap = 1500 #1500 (1,5s) overlap
-            saved_files = slice_audio(input_filepath, output_filepath, clip_length, overlap)
+        # Check if the file exists
+        if not os.path.exists(input_filepath):
+            print("File " + input_filepath + " does not exist!")
+            continue
 
-            if file_type in file_dict:
-                # If the type exists, add the saved file paths to the list of filenames for that type
-                file_dict[file_type].extend(saved_files)
-            else:
-                # If the type does not exist, create a new key-value pair with the type and the list of saved file paths
-                file_dict[file_type] = saved_files
+        # Call the slice_audio function to process the input file
+        clip_length = 3000 #3000ms (3s) long clips
+        overlap = 1500 #1500 (1,5s) overlap
+        saved_files = slice_audio(input_filepath, output_filepath, clip_length, overlap)
+
+        if file_type in file_dict:
+            # If the type exists, add the saved file paths to the list of filenames for that type
+            file_dict[file_type].extend(saved_files)
+        else:
+            # If the type does not exist, create a new key-value pair with the type and the list of saved file paths
+            file_dict[file_type] = saved_files
 
     # Return the resulting dictionary
     return file_dict
