@@ -101,15 +101,75 @@ def test_model(model, test_ds, detailed_print):
 
     return pred
 
+def predict_slices(model, img_paths, layer = None):
+    """
+    Predict the class of each image given a list of image paths.
+
+    Args:
+    model (tf.keras.Model): A trained TensorFlow model for image classification.
+    img_paths (List[str]): A list of image file paths.
+
+    Returns:
+    List[np.ndarray]: A list of predictions corresponding to the input images.
+    """
+    predictions = []
+
+    if (layer is not None):
+        cnn_shortened = tf.keras.models.Model(
+        inputs=model.input,
+        outputs=model.get_layer("cluster_layer").output
+        )
+
+    # Iterate over the image paths and predict the class for each image
+    for img_path in img_paths:
+        pred = predict(model, img_path)
+        predictions.append(pred)
+        
+    return get_average_predictions(predictions)
+
 def predict(model, img_path):
+    """
+    Predict the class of a single image given its file path.
+
+    Args:
+    model (tf.keras.Model): A trained TensorFlow model for image classification.
+    img_path (str): The image file path.
+
+    Returns:
+    np.ndarray: The prediction for the input image.
+    """
+    # Preprocess image
     pil_img = tf.keras.preprocessing.image.load_img(
     img_path, grayscale=False, color_mode='rgb', target_size=[256,256],
     interpolation='nearest'
     )
 
+    # Convert to numpy Array
     img_tensor = np.array(pil_img)
-    pred = model.predict(img_tensor[None,:,:])
+    # Add a batch dimension to the image tensor
+    img_tensor = img_tensor[None, :, :]
+
+    # Make the prediction using the model
+    pred = model.predict(img_tensor)
     return pred
+
+def get_average_predictions(predictions):
+    """
+    Calculate the average prediction values for each class.
+
+    Args:
+    predictions (List[np.ndarray]): A list of predictions.
+
+    Returns:
+    Tuple[float, float, float, float]: A tuple containing the average prediction values for each class.
+    """
+    # Convert the list of predictions to a NumPy array
+    predictions_array = np.array(predictions)
+
+    # Calculate the mean along the first axis (rows)
+    mean_predictions = np.mean(predictions_array, axis=0)
+
+    return mean_predictions
 
 def cluster_data_kmeans(features, train_ds): 
     number_classes = len(train_ds.class_names)

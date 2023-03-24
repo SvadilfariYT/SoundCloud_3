@@ -10,7 +10,7 @@ import librosa
 from pydub import AudioSegment
 import soundfile
 
-def load_audio(file_path, clip_duration=3):
+def load_audio(file_path):
     # print the filename
     print("Processing file:", file_path)
     audio_data, sample_rate = librosa.load(file_path, sr=None, mono=False)
@@ -116,21 +116,39 @@ def load_audio_files_by_csv(csv_file_path):
     # Return the resulting dictionary
     return file_dict
 
-def slice_audio(input_filepath, output_filepath, clip_length, overlap):
+
+def slice_audio(input_filepath:str, output_filepath:str, clip_length:int, overlap:int):
+    """
+    Slices a given audio file(.wav) into smaller segments, allowing for optional overlap between the segments.
+    Supports only WAV format.
+
+    Args:
+        input_filepath (str): The input file path to the original audio file in WAV format.
+        output_filepath (str): The directory where the output sliced audio files will be saved.
+        clip_length (int): The desired length of each sliced audio segment in milliseconds.
+        overlap (int, optional): The amount of overlap between consecutive audio segments in milliseconds. Default = 0.
+
+    Returns:
+        list: A list containing the file paths of the saved audio segments.
+    """
     print(f"Slicing file: {input_filepath}")
     audio = AudioSegment.from_wav(input_filepath)
     start = 0
     saved_files = []
 
-
+    # Iterate through the audio file, creating clips of the specified length
     while start + clip_length <= len(audio):
         end = start + clip_length
         clip = audio[start:end]
 
+        # Generate a unique output file name for each audio segment
         output_file_name = generate_output_filepath(input_filepath, start, end)
 
+        # Export the audio segment to a WAV file
         clip.export(output_file_name, format="wav")
         saved_files.append(output_file_name)
+        
+        # Update the start time for the next audio segment
         start += clip_length - overlap
 
     return saved_files
