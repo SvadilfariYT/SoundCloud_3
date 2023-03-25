@@ -60,13 +60,11 @@ function uploadFile(form) {
   oReq.open("POST", "upload_static_file", true);
   oReq.onload = function (oEvent) {
     if (oReq.status == 200) {
-      //oOutput.innerHTML = "Uploaded!";
       var jsonAnswer = JSON.parse(oReq.response);
-      //analyzeFile(jsonAnswer.response);
-
       analyzePage()
       addWaveform(jsonAnswer.response, jsonAnswer.name);
       addSpectrogram(jsonAnswer.spectrogram);
+      addAnalyzedData(jsonAnswer.categorization, jsonAnswer.clustering, jsonAnswer.similarSounds);
     } else {
       oOutput.innerHTML =
         "Error occurred when trying to upload your file.<br />";
@@ -82,12 +80,8 @@ function uploadFile(form) {
 
 function addSpectrogram(fileToSpectogram) {
   var spectogramImage = document.getElementById("spectogram")
-  // spectogramImage.style.display = "block";
   spectogramImage.src = fileToSpectogram;
-  // spectogramImage.srcset = fileToSpectogram + " 1x";
-  // spectogramImage.type = "image/png";
-  // spectogramImage.target = "_blank";
-  // spectogramImage.setAttribute("download", "false");
+ 
 }
 
 function addWaveform(filepath, name) {
@@ -97,7 +91,6 @@ function addWaveform(filepath, name) {
   var trackname = document.getElementsByClassName("track-name")[0];
   trackname.innerHTML = name;
   audioTrack.load(filepath);
-  // audioTrack.play();
   
 }
 
@@ -108,9 +101,47 @@ function analyzePage(){
     analyze[i].style.display = "block";
   }
 
-  // var introduction = document.getElementById("introduction");
-  // introduction.style.display = "none";
-
   var upload = document.getElementById("upload");
   upload.style.display = "none";
+}
+
+function addAnalyzedData(categorization, clustering, similarSounds){
+  console.log(similarSounds);
+
+  // categorization
+  var probability = document.getElementsByClassName("points");
+  var classification = document.getElementsByClassName("classification");
+
+  var highestProbability = categorization[0];
+  var highestProbabilityIndex = 0;
+  for (var i = 0; i < probability.length; i++) {
+    probability[i].innerHTML = (categorization[i]*100).toFixed(2).toString() + "%";
+    if (categorization[i] > highestProbability){
+      highestProbability = categorization[i];
+      highestProbabilityIndex = i;
+    }
+  }
+
+  classification[highestProbabilityIndex].classList.add("selected");
+
+  // clustering
+
+  var scatterplot = document.getElementById("scatterplot");
+  scatterplot.src = clustering;
+
+  // similar sounds
+  var similarSoundsAudio = document.getElementsByClassName("similar-sound-audio");
+  var similarSoundNames = document.getElementsByClassName("similarSoundName");
+  var similarSoundProbability = document.getElementsByClassName("similarSoundProbability");
+  console.log(similarSoundsAudio[0]);
+  console.log(similarSounds[0]);
+  for (var i = 0; i < similarSounds.length; i++) {
+    console.log(similarSounds[i]);
+    similarSoundNames[i].innerHTML = similarSounds[i][0].split("/")[3];
+    similarSoundsAudio[i].src = similarSounds[i][0];
+    similarSoundProbability[i].innerHTML = (similarSounds[i][1]*100).toFixed(2).toString() + "%";
+  }
+
+  var possibility= document.getElementById("possibility");
+  possibility.innerHTML = similarSounds;
 }

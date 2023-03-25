@@ -48,7 +48,6 @@
         </form>
         <div id="static_file_response"></div>
       </div>
-
       <div class="analyze">
         <h2>Analyze your sound</h2>
         <div class="audio-container">
@@ -59,16 +58,13 @@
               <i class="fas fa-play"></i>
               <i class="fas fa-pause"></i>
             </span>
-            
             <span class="stop-btn btn">
               <i class="fas fa-stop"></i>
             </span>
-            
             <span class="mute-btn btn">
               <i class="fas fa-volume-up"></i>
               <i class="fas fa-volume-mute"></i>
             </span>
-            
             <input
             type="range"
             min="0"
@@ -82,25 +78,23 @@
         <h3 style="margin: 40px 0px 20px 0px;">Your spectrogram</h3>
         <img style="margin-top:0px;" id="spectogram" src='../static/spectrograms/spect.jpg' oncontextmenu='return false;'></img>
         <p>A spectrogram is a visual representation of the frequencies that make up a sound wave over time. It typically display the frequency spectrum of a sound signal as a two-dimensional image, with time on the x-axis, frequency on the y-axis, and the intensity or power of each frequency component indicated by color or brightness.</p>
-      
       </div>
     </section>
-
+  
     <section class="analyze">
       <div class="flex">
 
         <div class="informations">
-          
           <div class="background-tile scatterplot ">
             <h3>Scatterplot</h3>
-            <img src="../static/src/scatterplot_example.png" alt="">
+            <img id="scatterplot" src="2d_scatter_plot.png" alt="">
           </div>
           
           <div class="background-tile classification-container">
-            <h3>Classification</h3>
-            <div class="classification selected">
+            <h3 style="text-align: left;">Classification</h3>
+            <div class="classification">
               <span class="class car">Car</span>
-            <span class="points">67.26%</span>
+              <span class="points">67.26%</span>
           </div>
           <div class="classification">
             <span class="class train">Train</span>
@@ -116,18 +110,27 @@
       <div class="similar-sounds">
         <h2>Similar Sounds:</h2>
         
-        <h4>Skateboard_001.wav</h4>
-        <audio controls>
+        <div class="" style="display: flex; justify-content: space-between;max-width: 300px; align-items: center;">
+          <h4 class="similarSoundName">Bus_005.wav</h4>
+          <span class="similarSoundProbability">44</span>
+        </div>
+        <audio class="similar-sound-audio" controls>
           <source src="../static/uploadedData/Skateboard_001.WAV">
         </audio>
         
-        <h4>Bus_005.wav</h4>
-        <audio controls>
+        <div class="" style="display: flex; justify-content: space-between; max-width: 300px; align-items: center;">
+          <h4 class="similarSoundName">Bus_005.wav</h4>
+          <span class="similarSoundProbability">25</span>
+        </div>
+        <audio class="similar-sound-audio" controls>
           <source src="../static/uploadedData/Bus_005.WAV">
         </audio>
         
-        <h4>Bus_004.wav</h4>
-        <audio controls>
+        <div class="" style="display: flex; justify-content: space-between;max-width: 300px; align-items: center;">
+          <h4 class="similarSoundName">Bus_0</h4>
+          <span class="similarSoundProbability">57</span>
+        </div>
+        <audio class="similar-sound-audio" controls>
           <source src="../static/uploadedData/Bus_004.WAV">
         </audio>
       </div>

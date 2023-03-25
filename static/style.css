@@ -125,8 +125,6 @@ section.upload, .background-tile {
   margin: 20px auto;
 }
 
-
-
 .analyze{
   display: none;
 }
@@ -137,19 +135,13 @@ img#spectogram{
   margin: 20px auto;
 }
 
-
 .flex{
   display: flex;
   justify-content: space-between;
 }
 
-section.analyze{
-  margin: 20px;
-}
-
-
 .informations {
-  width: 45%;
+  width: 55%;
   margin-bottom: 40px;
 }
 .classification-container .classification{
@@ -177,7 +169,7 @@ section.analyze{
 }
 
 .similar-sounds{
-  width: 50%;
+  width: 40%;
 }
 
 .scatterplot{
@@ -187,4 +179,9 @@ section.analyze{
 
 .similar-sounds audio{
   filter: invert(0.96);
+}
+
+.similarSoundProbability{
+  color: var(--purple);
+  font-weight: 700;
 }

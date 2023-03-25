@@ -6,6 +6,7 @@ from spectrogram_creation import load_audio
 from spectrogram_creation import get_spectrogram
 from spectrogram_creation import create_trainData_csv
 from spectrogram_creation import convert_all_files_in_directory_to_16bit
+from multiprocessing import Queue
 
 import sys
 import os
@@ -46,6 +47,13 @@ def predict_by_wav(model, audio_path : str):
 
     return predictions_categorization, predictions_clustering
 
+def analyze_uploaded_audio(queue: Queue, audio_path : str):
+    predictions_categorization = [0.3726702798340249, 0.5678900524536723, 0.8897755017328181, 0.14534067592516864]
+    predictions_clustering = "../static/src/ha.jpeg"
+    similar_files = [["../static/uploadedData/Skateboard_001.WAV", 0.74], ["../static/uploadedData/Bus_005.WAV", 0.24], ["../static/uploadedData/Bus_004.WAV", 0.74]]
+    
+    queue.put((predictions_categorization, predictions_clustering, similar_files))
+
 # MAIN METHOD
 if __name__ == '__main__':
     
@@ -63,7 +71,7 @@ if __name__ == '__main__':
         cnn = create_model_cnn(epochs=20)
         save_model_cnn(cnn, model_path) 
 
-    predictions_categorization, predictions_clustering = predict_by_wav(cnn, './data/AudioSamples_16Bit/Car_003.WAV')
+    predictions_categorization, predictions_clustering = predict_by_wav(cnn, './data/testAudio.wav')
 
 
 
